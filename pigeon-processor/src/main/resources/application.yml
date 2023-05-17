@@ -1,2 +1,14 @@
 server:
   port: 8080
+
+kafka:
+  reactive:
+    consumer:
+      bootstrap-servers: localhost:8082
+      client-id: pigeon-processor-consumer-id-${random.uuid}
+      group-id: pigeon-processor-consumer-group-${random.uuid}
+      topic: pigeon-processor-consumer
+      partitions: 1
+      replications: 1
+    publisher:
+      bootstrap-servers: localhost:8082
