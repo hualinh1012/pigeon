@@ -8,7 +8,7 @@ services:
     networks:
       - mongors-network
     ports:
-      - 27021:27017
+      - 27017:27017
     links:
       - mongo2
       - mongo3
@@ -22,9 +22,9 @@ services:
     networks:
       - mongors-network
     ports:
-      - 27022:27017
+      - 27018:27018
     restart: always
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs" ]
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs", "--port", "27018" ]
   mongo3:
     container_name: mongo3
     image: mongo:4.4
@@ -33,9 +33,9 @@ services:
     networks:
       - mongors-network
     ports:
-      - 27023:27017
+      - 27019:27019
     restart: always
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs" ]
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs", "--port", "27019" ]
 
   zookeeper-1:
     image: confluentinc/cp-zookeeper:latest

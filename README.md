@@ -12,6 +12,10 @@ This README would normally document whatever steps are necessary to get your app
 
 * Summary of set up
 * Configuration
+  * Set up dev environment: docker-compose.yml, scripts/mongodb-rs-init.sh
+    * Step 1: Add "127.0.0.1 mongo1 mongo2 mongo3" to hosts 
+    * Step 2: docker compose up -d
+    * Step 3: sh scripts/mongodb-rs-init.sh
 * Dependencies
 * Database configuration
 * How to run tests
