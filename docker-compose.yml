@@ -5,7 +5,6 @@ services:
     image: mongo:4.4
     volumes:
       - ~/mongors/data1:/data/db
-      - ./rs-init.sh:/scripts/rs-init.sh
     networks:
       - mongors-network
     ports:
@@ -81,6 +80,6 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
-  networks:
-    mongors-network:
-      driver: bridge
+networks:
+  mongors-network:
+    driver: bridge
