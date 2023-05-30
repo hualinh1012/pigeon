@@ -1,46 +1,43 @@
 package com.lhh.eco.pigeon.configuration;
 
-import org.apache.kafka.clients.admin.*;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.admin.AdminClientConfig;
+import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.clients.admin.TopicDescription;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import reactor.kafka.receiver.KafkaReceiver;
-import reactor.kafka.receiver.ReceiverOptions;
-import reactor.kafka.receiver.internals.ConsumerFactory;
-import reactor.kafka.sender.KafkaSender;
-import reactor.kafka.sender.SenderOptions;
-import reactor.kafka.sender.internals.ProducerFactory;
+import org.springframework.kafka.annotation.EnableKafka;
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
+import org.springframework.kafka.core.*;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+@Slf4j
 @Configuration
+@EnableKafka
 public class KafkaConfiguration {
 
-    @Autowired
-    private Logger logger;
-
-    @Value("${kafka.reactive.consumer.bootstrap-servers}")
+    @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
-    @Value("${kafka.reactive.consumer.client-id}")
+    @Value("${spring.kafka.consumer.client-id}")
     private String clientId;
-    @Value("${kafka.reactive.consumer.group-id}")
+    @Value("${spring.kafka.consumer.group-id}")
     private String groupId;
-    @Value("${kafka.reactive.consumer.topic}")
+    @Value("${spring.kafka.consumer.topic}")
     private String topic;
-    @Value("${kafka.reactive.consumer.partitions}")
+    @Value("${spring.kafka.consumer.partitions}")
     private int partitions;
-    @Value("${kafka.reactive.consumer.replications}")
+    @Value("${spring.kafka.consumer.replications}")
     private short replications;
 
-    private Map<String, Object> kafkaConsumerConfiguration() {
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.CLIENT_ID_CONFIG, clientId);
@@ -48,46 +45,36 @@ public class KafkaConfiguration {
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true);
-        return props;
+        ConsumerFactory<String, String> consumerFactory = new DefaultKafkaConsumerFactory<>(props);
+
+        ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactory);
+        return factory;
     }
 
-    private Map<String, Object> kafkaPublisherConfiguration() {
+    @Bean
+    public KafkaTemplate<String, String> kafkaTemplate() {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        return props;
-    }
+        ProducerFactory<String, String> producerFactory = new DefaultKafkaProducerFactory<>(props);
 
-//    @Bean
-//    void ensureTopicIsCreated() throws ExecutionException, InterruptedException {
-//        try (Admin admin = Admin.create(kafkaConsumerConfiguration())) {
-//            DescribeTopicsResult describeTopicsResult = admin.describeTopics(Collections.singleton(topic));
-//            TopicDescription topicDescription = describeTopicsResult.topicNameValues().get(topic).get();
-//            if (topicDescription == null) {
-//                NewTopic newTopic = new NewTopic(topic, partitions, replications);
-//                CreateTopicsResult createTopicsResult = admin.createTopics(Collections.singleton(newTopic));
-//                if (createTopicsResult.topicId(topic).get() != null) {
-//                    logger.info("Creating new topic successfully! - {} ", topic);
-//                }
-//            } else {
-//                logger.info("Topic is already exist, no action required! - {}", topic);
-//            }
-//        }
-//    }
-    @Bean
-    public NewTopic topic1() {
-        return new NewTopic(topic, partitions, replications);
+        return new KafkaTemplate<>(producerFactory);
     }
 
     @Bean
-    KafkaReceiver<String, String> configKafkaReceiver() {
-        ReceiverOptions<String, String> receiverOptions = ReceiverOptions.create(kafkaConsumerConfiguration());
-        receiverOptions = receiverOptions.subscription(Collections.singleton(topic));
-        return KafkaReceiver.create(ConsumerFactory.INSTANCE, receiverOptions);
-    }
+    void ensureTopicIsCreated() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
 
-    @Bean
-    KafkaSender<String, String> configKafkaSender() {
-        SenderOptions<String, String> receiverOptions = SenderOptions.create(kafkaPublisherConfiguration());
-        return KafkaSender.create(ProducerFactory.INSTANCE, receiverOptions);
+        KafkaAdmin admin = new KafkaAdmin(props);
+        try {
+            TopicDescription topicDescription = admin.describeTopics(topic).get(topic);
+            log.info("Topic is already exist, no action required! - {}", topicDescription.name());
+        } catch (Exception e) {
+            log.info("Topic does not exists...");
+            NewTopic newTopic = new NewTopic(topic, partitions, replications);
+            admin.createOrModifyTopics(newTopic);
+            log.info("Creating new topic successfully! - {} ", topic);
+        }
     }
 }

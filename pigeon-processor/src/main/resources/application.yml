@@ -1,20 +1,24 @@
 server:
   port: 8080
 
-kafka:
-  reactive:
-    consumer:
-      bootstrap-servers: localhost:29092,localhost:39092
-      client-id: pigeon-processor-consumer-id-${random.uuid}
-      group-id: pigeon-processor-consumer-group-${random.uuid}
-      topic: pigeon-processor-consumer
-      partitions: 1
-      replications: 1
-    publisher:
-      bootstrap-servers: localhost:8082
-
 spring:
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration
+
   data:
     mongodb:
       uri: mongodb://localhost:27017,localhost:27018,localhost:27019/pigeon
       database: pigeon
+
+  kafka:
+    bootstrap-servers: localhost:29092,localhost:39092
+    consumer:
+      client-id: pigeon-processor-consumer-id-${random.uuid}
+      group-id: pigeon-processor-consumer-group
+      topic: pigeon-processor-consumer
+      partitions: 1
+      replications: 1
+      concurrency: 1
+    producer:
+
+
