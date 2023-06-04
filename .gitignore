@@ -1,8 +1,15 @@
 HELP.md
+
+### Java ###
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+
+### TypeScript & JavaScript ###
+node_modules/
+build/
+package-lock.json
 
 ### STS ###
 .apt_generated
@@ -25,7 +32,6 @@ target/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
