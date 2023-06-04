@@ -1,0 +1,21 @@
+{
+  "name": "pigeon-socket",
+  "version": "1.0.0",
+  "description": "Socket service for Pigeon",
+  "main": "index.js",
+  "scripts": {
+    "dev": "npx nodemon",
+    "build": "rm -rf ./build && tsc",
+    "start": "npm run build && node build/index.js"
+  },
+  "author": "Linh Hua",
+  "devDependencies": {
+    "@types/node": "^20.2.5",
+    "nodemon": "^2.0.22",
+    "ts-node": "^10.9.1"
+  },
+  "dependencies": {
+    "typescript": "^5.1.3",
+    "typescript-ioc": "^3.2.2"
+  }
+}
