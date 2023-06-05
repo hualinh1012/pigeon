@@ -1,7 +1,9 @@
 import "reflect-metadata";
-import {injectable} from "inversify";
+import {inject, injectable} from "inversify";
 import {createServer} from "http";
-import {Server} from "socket.io";
+import {IConfig} from "../IoC/config";
+import {IWebSocketService} from "./WebSocketService";
+import {container} from "../IoC/container";
 
 export interface IMainService {
     start(): Promise<void>;
@@ -10,21 +12,22 @@ export interface IMainService {
 @injectable()
 export class MainService implements IMainService {
 
-
-    public constructor() {
+    public constructor(
+        @inject("config") private config: IConfig,
+        @inject("WebsocketService") private websocketService: IWebSocketService
+    ) {
     }
 
     async start(): Promise<void> {
-        console.log("starting....")
+        console.log("Starting server...")
+        const port = this.config.port;
 
         const httpServer = createServer();
-        const io = new Server(httpServer, {});
+        this.websocketService.init(httpServer, container);
 
-        io.on("connection", (socket) => {
-            // ...
-        });
 
-        httpServer.listen(3000);
+        httpServer.listen(port);
+        console.log("Server is listening on port", port);
     }
 
 }
