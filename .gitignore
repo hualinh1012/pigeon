@@ -10,6 +10,7 @@ target/
 node_modules/
 build/
 package-lock.json
+.env
 
 ### STS ###
 .apt_generated
