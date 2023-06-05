@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 public class KafkaController {
 
     @KafkaListener(
-            topics = "${spring.kafka.consumer.group-id}",
-            groupId = "${spring.kafka.consumer.topic}",
+            topics = "${spring.kafka.consumer.topic}",
+            groupId = "${spring.kafka.consumer.group-id}",
             concurrency = "${spring.kafka.consumer.concurrency}")
     public void messageListener(String message) {
         System.out.println("Receive message: " + message);
