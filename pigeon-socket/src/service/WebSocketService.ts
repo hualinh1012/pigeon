@@ -20,7 +20,7 @@ export class WebSocketService implements IWebSocketService {
         this.io = new Server(httpServer);
 
         this.io.on("connection", (socket) => {
-            // ...
+            console.log("new connection");
         });
 
         console.log("Socket server is ready!")
