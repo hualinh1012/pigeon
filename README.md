@@ -9,6 +9,7 @@ This README would normally document whatever steps are necessary to get your app
 This repository is about a system which can horizontally scale and handle 2 millions socket connection at the same time
 
 #### Table of content
+
 * Set up guide
 * System architecture
 * Technology adoption
@@ -16,23 +17,27 @@ This repository is about a system which can horizontally scale and handle 2 mill
 ## How do I get set up? ###
 
 ##### Dependencies
+
 * Docker
 * Java 17
 * NodeJs v18
 
 ##### Set up pigeon-dev-env
-* Step 1: Add **127.0.0.1 mongo1 mongo2 mongo3** to hosts 
+
+* Step 1: Add **127.0.0.1 mongo1 mongo2 mongo3** to hosts
 * Step 2: **cd pigeon-dev-env**
 * Step 3: **docker compose up -d**
 * Step 4: **sh scripts/mongodb-rs-init.sh**
 
 ##### Set up pigeon-processor
+
 * Step 1: Set your **JAVA_HOME**
 * Step 2: **cd pigeon-processor**
 * Step 3: **./mvnw clean install -U**
 * Step 4: Run with your IDE or : **java -jar ./target/pigeon-processor-0.0.1-SNAPSHOT.jar**
 
 ##### Set up pigeon-socket
+
 * Step 1: **cd pigeon-docket**
 * Step 2: **npm install**
 * Step 3: **npm run start**
@@ -42,22 +47,36 @@ This repository is about a system which can horizontally scale and handle 2 mill
 This is the general architecture. The system will follow Event Driven Design with Kafka.
 We provide a horizontal scalable system. Technologies are used in the system have to be scalable to avoid bottleneck
 
-![Alt text](/documentation/General%20architecture.drawio.png)
+![General architecture](/documentation/General%20architecture.drawio.png)
+
+When Kafka publishes a message, all service with **different group id** will consume that message.
+
+When we have more than 1 service has **same group id** and a message come to that group, only one service will receive
+and process that message
 
 **pigeon-sockets** will have different consumer group-id.
 When processor publishes a messages, Kafka will broadcast that message to all socket services.
 
 **pigeon-processor** will have same consumer group-id.
-When socket publishes a incoming message from client to processors. Kafka will work as a message queue and only 1 
+When socket publishes a incoming message from client to processors. Kafka will work as a message queue and only 1
 processor will proceed that message
 
-![Alt text](/documentation/Backend%20architecture.drawio.png)
+![Backend architecture](/documentation/Backend%20architecture.drawio.png)
 
 ## Technologies adoption ###
 
 ##### Why Kafka?
 
-Comparing Kafka to other similar message broker technologies like Redis pubsub and RabbitMQ, we will see the different any why we should use Kafka.
+Kafka architectureasdasd
+
+![Kafka architecture](/documentation/Kafka-Architecture-Diagram.png)
+
+Kafka cluster scaling
+
+![Kafka cluster scaling](/documentation/Kafka-cluster-scaling.png)
+
+Comparing Kafka to other similar message broker technologies like Redis pubsub and RabbitMQ, we will see the different
+any why we should use Kafka.
 
 This table will compare Kafka with Redis and RabbitMQ
 
@@ -74,9 +93,14 @@ Our system prefers high I/O and easy scaling. So Kafka is best choice clearly
 ##### Why MongoDB?
 
 There are 3 main reason to choose MongoDB
+
 * We won't have any financial functionalities in our system, so we may not need transaction.
 * MongoDB is also flexible, we can change our data structure without any kind of migration technologies.
 * MongoDB provides horizontal scaling with Replica and Sharding
+
+This is the idea our full deployed MongoDB
+
+![MongoDB](/documentation/Mongodb-replicaset-sharding-architecture.png)
 
 ## Contribution guidelines ###
 
