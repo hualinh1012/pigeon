@@ -2,7 +2,7 @@ import {injectable} from "inversify";
 import {Socket} from "socket.io";
 import {AuthenticatedConnection} from "../entity/AuthenticatedConnection";
 
-export interface IConnectionService {
+export interface ISocketConnectionService {
     addUnauthenticatedConnection(socket: Socket): void;
 
     removeUnauthenticatedConnection(socketId: string): void;
@@ -19,7 +19,7 @@ export interface IConnectionService {
 }
 
 @injectable()
-export class ConnectionService implements IConnectionService {
+export class SocketConnectionService implements ISocketConnectionService {
 
     // This map is used to store unauthenticated sockets when they connect to server
     // Sockets will be removed from this map after they authenticate

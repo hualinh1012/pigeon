@@ -13,7 +13,7 @@ export interface IMainService {
 export class MainService implements IMainService {
 
     public constructor(
-        @inject("config") private config: IConfig,
+        @inject("Config") private config: IConfig,
         @inject("WebsocketService") private websocketService: IWebSocketService
     ) {
     }

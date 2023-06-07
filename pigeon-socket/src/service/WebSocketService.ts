@@ -1,7 +1,7 @@
 import {Server, Socket} from "socket.io";
 import * as http from "http";
 import {Container, inject, injectable} from "inversify";
-import {IConnectionService} from "./ConnectionService";
+import {ISocketConnectionService} from "./SocketConnectionService";
 import {AuthenticatedConnection} from "../entity/AuthenticatedConnection";
 
 export interface IWebSocketService {
@@ -16,7 +16,7 @@ export class WebSocketService implements IWebSocketService {
     public io: Server;
 
     constructor(
-        @inject("ConnectionService") private connectionService: IConnectionService) {
+        @inject("SocketConnectionService") private connectionService: ISocketConnectionService) {
     }
 
     init(httpServer: http.Server, container: Container): void {
