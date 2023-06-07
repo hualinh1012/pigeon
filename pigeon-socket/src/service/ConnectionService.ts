@@ -21,8 +21,12 @@ export interface IConnectionService {
 @injectable()
 export class ConnectionService implements IConnectionService {
 
+    // This map is used to store unauthenticated sockets when they connect to server
+    // Sockets will be removed from this map after they authenticate
     private unauthenticatedConnectionMap = new Map<string, Socket>();
 
+    // After authenticating, sockets will be stored in these map
+    // Saving like this will allow to find by socketId or by userId
     private authenticatedConnectionMap = new Map<string, AuthenticatedConnection>();
     private userConnectionMap = new Map<string, AuthenticatedConnection[]>();
 
@@ -51,6 +55,8 @@ export class ConnectionService implements IConnectionService {
         }
         this.userConnectionMap.set(connection.userId, userSockets);
         this.authenticatedConnectionMap.set(connection.socket.id, connection);
+
+        this.removeUnauthenticatedConnection(connection.socket.id);
     }
 
     removeAuthenticatedConnection(socketId: string): AuthenticatedConnection | undefined {

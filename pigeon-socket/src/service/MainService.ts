@@ -1,9 +1,9 @@
 import "reflect-metadata";
 import {inject, injectable} from "inversify";
 import {createServer} from "http";
-import {IConfig} from "../IoC/config";
+import {IConfig} from "../IoC/Config";
 import {IWebSocketService} from "./WebSocketService";
-import {container} from "../IoC/container";
+import {container} from "../IoC/Container";
 
 export interface IMainService {
     start(): Promise<void>;
