@@ -6,6 +6,7 @@ import {WebSocketService} from "../service/WebSocketService";
 import {SocketConnectionService} from "../service/SocketConnectionService";
 import {KafkaConnectionService} from "../service/KafkaConnectionService";
 import {KafkaConsumerService} from "../service/KafkaConsumerService";
+import {KafkaProducerService} from "../service/KafkaProducerService";
 
 export const createContainer = () => {
     const container = new Container();
@@ -17,6 +18,7 @@ export const createContainer = () => {
     container.bind("SocketConnectionService").to(SocketConnectionService)
     container.bind("KafkaConnectionService").to(KafkaConnectionService)
     container.bind("KafkaConsumerService").to(KafkaConsumerService)
+    container.bind("KafkaProducerService").to(KafkaProducerService)
 
     return container;
 }

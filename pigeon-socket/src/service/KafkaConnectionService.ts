@@ -10,7 +10,7 @@ export interface IKafkaConnectionService {
 @injectable()
 export class KafkaConnectionService implements IKafkaConnectionService {
 
-    private kafka: Kafka;
+    private readonly kafka: Kafka;
 
     constructor(@inject("Config") private config: IConfig) {
         this.kafka = new Kafka({

@@ -17,6 +17,7 @@ export class KafkaProducerService implements IKafkaProducerService {
         @inject("KafkaConnectionService") private kafkaService: IKafkaConnectionService,
     ) {
         this.producer = kafkaService.getKafkaConnection().producer();
+        this.producer.connect().catch(console.error);
     }
 
     async publish(message: string): Promise<void> {

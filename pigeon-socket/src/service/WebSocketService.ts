@@ -3,11 +3,14 @@ import * as http from "http";
 import {Container, inject, injectable} from "inversify";
 import {ISocketConnectionService} from "./SocketConnectionService";
 import {AuthenticatedConnection} from "../entity/AuthenticatedConnection";
+import {IKafkaProducerService} from "./KafkaProducerService";
 
 export interface IWebSocketService {
     io: Server;
 
     init(httpServer: http.Server, container: Container): void;
+
+    send(message: string | undefined): void;
 }
 
 @injectable()
@@ -16,7 +19,8 @@ export class WebSocketService implements IWebSocketService {
     public io: Server;
 
     constructor(
-        @inject("SocketConnectionService") private connectionService: ISocketConnectionService) {
+        @inject("SocketConnectionService") private connectionService: ISocketConnectionService,
+        @inject("KafkaProducerService") private kafkaProducerService: IKafkaProducerService) {
     }
 
     init(httpServer: http.Server, container: Container): void {
@@ -27,7 +31,7 @@ export class WebSocketService implements IWebSocketService {
             this.connectionService.addUnauthenticatedConnection(socket);
 
             socket.on("disconnect", () => {
-                console.log("Socket is connected, id=%s", socket.id)
+                console.log("Socket is disconnected, id=%s", socket.id)
                 this.connectionService.removeUnauthenticatedConnection(socket.id);
                 this.connectionService.removeAuthenticatedConnection(socket.id);
             });
@@ -42,7 +46,7 @@ export class WebSocketService implements IWebSocketService {
 
             socket.on("message", (message) => {
                 if (this.isAuthenticatedSocket(socket)) {
-                    console.log("New message is coming to server: %s", message);
+                    this.kafkaProducerService.publish(message).catch(console.error);
                 } else {
                     console.log("Socket need to be authenticated before send messages!");
                 }
@@ -65,6 +69,12 @@ export class WebSocketService implements IWebSocketService {
         }
         this.connectionService.addAuthenticatedConnection(authenticatedConnection);
         console.log("Socket authenticates successfully!, id=%s", socket.id)
+    }
+
+    send(message: string): void {
+        this.connectionService.getAllAuthenticatedConnection().forEach((connection) => {
+            connection.socket.send("message", message);
+        })
     }
 
 }

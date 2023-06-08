@@ -3,6 +3,7 @@ import {IKafkaConnectionService} from "./KafkaConnectionService";
 import {Admin, Consumer} from "kafkajs";
 import {randomUUID} from "crypto";
 import {IConfig} from "../IoC/Config";
+import {IWebSocketService} from "./WebSocketService";
 
 export interface IKafkaConsumerService {
     start(): Promise<void>;
@@ -17,6 +18,7 @@ export class KafkaConsumerService implements IKafkaConsumerService {
     constructor(
         @inject("Config") private config: IConfig,
         @inject("KafkaConnectionService") private kafkaService: IKafkaConnectionService,
+        @inject("WebsocketService") private websocketService: IWebSocketService,
     ) {
         this.consumer = this.kafkaService.getKafkaConnection().consumer({
             groupId: config.kafkaConsumerGroup + "-" + randomUUID()
@@ -38,11 +40,7 @@ export class KafkaConsumerService implements IKafkaConsumerService {
 
         await this.consumer.run({
             eachMessage: async ({topic, partition, message}) => {
-                console.log({
-                    partition,
-                    offset: message.offset,
-                    value: message.value,
-                })
+                this.websocketService.send(message.value?.toString());
             },
         })
     }
