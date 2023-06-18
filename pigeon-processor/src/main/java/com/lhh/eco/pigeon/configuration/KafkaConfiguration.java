@@ -7,11 +7,13 @@ import org.apache.kafka.clients.admin.TopicDescription;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
+import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.kafka.core.*;
 
 import java.util.HashMap;
@@ -36,6 +38,9 @@ public class KafkaConfiguration {
     @Value("${spring.kafka.consumer.replications}")
     private short replications;
 
+    @Value("${spring.kafka.producer.topic}")
+    private String producerTopic;
+
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
         Map<String, Object> props = new HashMap<>();
@@ -56,6 +61,8 @@ public class KafkaConfiguration {
     public KafkaTemplate<String, String> kafkaTemplate() {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         ProducerFactory<String, String> producerFactory = new DefaultKafkaProducerFactory<>(props);
 
         return new KafkaTemplate<>(producerFactory);
@@ -76,5 +83,10 @@ public class KafkaConfiguration {
             admin.createOrModifyTopics(newTopic);
             log.info("Creating new topic successfully! - {} ", topic);
         }
+    }
+
+    @Bean
+    public NewTopic producerTopic() {
+        return TopicBuilder.name(producerTopic).partitions(1).build();
     }
 }

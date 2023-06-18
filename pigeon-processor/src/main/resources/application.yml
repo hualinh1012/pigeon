@@ -20,5 +20,6 @@ spring:
       replications: 1
       concurrency: 1
     producer:
+      topic: pigeon-processor-producer
 
 
